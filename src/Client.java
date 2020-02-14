@@ -134,10 +134,10 @@ public class Client {
     private void parseIPDom(String args[]){
         List<String> argL= Arrays.asList(args);
 
-        this.dom = argL[argL.length - 1];
+        this.dom = argL.get(argL.size() - 1);
         String[] octets;
-        if(argL[argL.length -2].contains("@")){
-            this.address = argL[argL.length -2].substring(1);
+        if(argL.get(argL.size() - 2).contains("@")){
+            this.address = argL.get(argL.size() - 2).substring(1);
             octets = address.split("\\.");
 
             if(octets.length != 4) {
