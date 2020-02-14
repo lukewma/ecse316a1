@@ -1,5 +1,5 @@
-import java.nio.ByteBuffer;
 import java.util.Random;
+import java.nio.ByteBuffer;
 
 public class Request {
 
@@ -7,8 +7,8 @@ public class Request {
 	private Qtype type;
 
 	public Request(String domain, Qtype type){
-		this.dom = domain;
 		this.type = type;
+		this.dom = domain;
 	}
 
 	public byte[] getReq(){
@@ -36,14 +36,14 @@ public class Request {
 	
 
 	private int getqLen(){
-		int byteLength = 0;
 		String[] items = domain.split("\\.");
+		int bLen = 0;
 		for(int i=0; i < items.length; i ++){
-			// 1 byte length for the number value and then another for each character
-			//www.mcgill.ca = 3, w, w, w, 6, m, c, g, i, l, l, 2, c, a = 14 byteLength
-			byteLength += items[i].length() + 1;
+			//1 bLen = 1 char
+			//www.mcgill.ca = 3, w, w, w, 6, m, c, g, i, l, l, 2, c, a = 14 bLen
+			bLen += items[i].length() + 1;
 		}
-		return byteLength;
+		return bLen;
 	}
 
 	private byte[] createQH(int qLen){
