@@ -3,14 +3,13 @@ public class Record
     int time_to_live;
     int mx_type_preference;
     String alias;
+    String name;
     QType q_type;
     boolean authorization_bool;
     String authorization_string;
     int byteLength;
-    // rd length has a get set in here but is used in response
-    // seems like name is never used
-    // query class has a use of set in response
-    // get set querytype are both used in response and query type is used once in here for sqitch
+    byte[] QClass;
+    int rdlength;
     // get and set of byt length used in response
 
     public Record(boolean authorization_bool)
@@ -55,11 +54,45 @@ public class Record
     {
         return byteLength;
     }
-
+    public QType getQType()
+    {
+        return q_type;
+    }
     public void setLengthOfByte(int byteLength)
     {
         this.byteLength = byteLength;
     }
+
+    public void setName(String name)
+    {
+        this.name = name;
+    }
+    public void setQType(QType q_type)
+    {
+        this.q_type = q_type;
+    }
+    public void setQClass(byte[] QClass)
+    {
+        this.QClass = QClass;
+    }
+    public void setTTL(int time_to_live)
+    {
+        this.time_to_live = time_to_live;
+    }
+    public void setRDLength(int rdlength)
+    {
+        this.rdlength = rdlength;
+    }
+    public void setAlias(String alias)
+    {
+        this.alias = alias;
+    }
+    public void setMXPreference(int mx_type_preference)
+    {
+        this.mx_type_preference = mx_type_preference;
+    }
+
+
 
 
 }
