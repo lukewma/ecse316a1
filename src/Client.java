@@ -127,6 +127,7 @@ public class Client {
         //options.addOption("@")
 
         //Option domain = Option.builder
+        //TODO: add exceptions??
 
         return options;
     }
@@ -136,23 +137,24 @@ public class Client {
 
         this.dom = argL[argL.length - 1];
         String[] octets;
+
         if(argL[argL.length -2].contains("@")){
             this.address = argL[argL.length -2].substring(1);
             octets = address.split("\\.");
 
             if(octets.length != 4) {
-                throw new IPFormatException("ERROR\tIncorrect input syntax: IP must contain 4 numbers between 0 and 255 inclusively, separated by a period (.)");
+                throw new Exception("ERROR\tIncorrect input syntax: IP must contain 4 numbers between 0 and 255 inclusively, separated by a period (.)");
             }
 
             for(int i = 0; i < 4; i++){
                 int oct = Integer.parseInt(octets[i]);
                 if (oct < 0 || oct > 255) {
-                    throw new IPFormatException("ERROR\tIncorrect input syntax: IP must contain 4 numbers between 0 and 255 inclusively, separated by a period (.)");
+                    throw new Exception("ERROR\tIncorrect input syntax: IP must contain 4 numbers between 0 and 255 inclusively, separated by a period (.)");
                 }
                 ip[i] = (byte) oct;
             }
         }
-        else throw new MissingArgException("ERROR\tThere must be an IP address preceded by an '@' as the second last argument and a domain name as the last one")
+        else throw new Exception("ERROR\tThere must be an IP address preceded by an '@' as the second last argument and a domain name as the last one")
     }
 
     public void makeReq() {

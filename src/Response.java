@@ -19,12 +19,6 @@ public class Response
     Record[] answers;
     Record[] additionals;
 
-
-
-
-
-
-
     //construct what a response is actually supposed to have
     public Response(byte[] response, int size_req, QType q_type)
     {
