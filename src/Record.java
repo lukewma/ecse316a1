@@ -21,7 +21,7 @@ public class Record
 
     // we have record objects, response will require these as outputs
     //response calls to get the records and based on their characteristics, records forms those outputs and gives them to resposne
-    public void record_out
+    public void record_out()
     {
         // output of the record to response will depend on the type (a, cname, mx, ns)
         switch(this.q_type) // get the q_type of the record and output accordingly

@@ -4,9 +4,9 @@ import java.nio.ByteBuffer;
 public class Request {
 
 	private String dom;
-	private Qtype type;
+	private QType type;
 
-	public Request(String domain, Qtype type){
+	public Request(String domain, QType type){
 		this.type = type;
 		this.dom = domain;
 	}
@@ -36,7 +36,7 @@ public class Request {
 	
 
 	private int getqLen(){
-		String[] items = domain.split("\\.");
+		String[] items = dom.split("\\.");
 		int bLen = 0;
 		for(int i=0; i < items.length; i ++){
 			//1 bLen = 1 char
@@ -50,7 +50,7 @@ public class Request {
 		ByteBuffer q = ByteBuffer.allocate(qLen+5);
 		
 		//first calculate how many bytes we need so we know the size of the array
-		String[] items = domain.split("\\.");
+		String[] items = dom.split("\\.");
 		for(int i=0; i < items.length; i ++){
 			q.put((byte) items[i].length());
 			for (int j = 0; j < items[i].length(); j++){
@@ -70,10 +70,10 @@ public class Request {
 		return q.array();
 	}
 	
-	private char hexByQt(Qtype type){
-		if (type == Qtype.A) {
+	private char hexByQt(QType type){
+		if (type == QType.A) {
 			return '1';
-		} else if (type == Qtype.NS) {
+		} else if (type == QType.NS) {
 			return '2';
 		} else {
 			return 'F';

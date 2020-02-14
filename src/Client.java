@@ -1,5 +1,5 @@
 import java.io.IOException;
-import java.lang.*
+import java.lang.*;
 import java.net.*;
 import java.util.Arrays;
 import java.util.List;
@@ -8,161 +8,161 @@ import org.apache.commons.cli.*;
 
 public class Client {
 
-	public QType qt;
-	public int MAX_PACKET = 512;
-	private int timeout;						
-	private byte[] ip = new byte[4];
-	private int retries;
-	private String address;
-	private String dom;
-	private int port;
+    public QType qt;
+    public int MAX_PACKET = 512;
+    private int timeout;
+    private byte[] ip = new byte[4];
+    private int retries;
+    private String address;
+    private String dom;
+    private int port;
 
-	public Main(String args[]) throws Exception{
+    public void Main(String args[]) throws Exception{
 
-		Options o = this.mkOpt();
-		CommandLineParser pars = new DefaultParser();
-		HelpFormatter frmt = new HelpFormatter();
-		CommandLine cmd;
+        Options o = this.mkOpt();
+        CommandLineParser pars = new DefaultParser();
+        HelpFormatter frmt = new HelpFormatter();
+        CommandLine cmd;
 
         try {
             cmd = pars.parse(o, args, true);
             cmdOpt(cmd);
         } catch (ParseException e) {
             System.out.println(e.getMessage());
-			frmt.printHelp("utility-name", o);
+            frmt.printHelp("utility-name", o);
         }
 
         try {
-			this.parseIPDom(cmd.getArgList());
-		} catch (Exception e) {
-			System.out.println(e.getMessage());
-		}
-		
-		this.makeReq();
-			
-	}
-	private void cmdOpt(CommandLine c){
-		this.timeout = Integer.parseInt(c.getOptionValue("t", "3"))*1000;
-		this.retries = Integer.parseInt(c.getOptionValue("r", "3"));
-		this.port = Integer.parseInt(c.getOptionValue("p", "53"));
-		this.qt = QType.A;
-		if (c.hasOption("mx")) {
-			this.qt = QType.MX;
-		}
-		else if (c.hasOption("ns")) {
-			this.qt = Qtype.NS;
-		}
-	}
+            this.parseIPDom(cmd.getArgList());
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
 
-	private Options mkOpt(){
+        this.makeReq();
+
+    }
+    private void cmdOpt(CommandLine c){
+        this.timeout = Integer.parseInt(c.getOptionValue("t", "3"))*1000;
+        this.retries = Integer.parseInt(c.getOptionValue("r", "3"));
+        this.port = Integer.parseInt(c.getOptionValue("p", "53"));
+        this.qt = QType.A;
+        if (c.hasOption("mx")) {
+            this.qt = QType.MX;
+        }
+        else if (c.hasOption("ns")) {
+            this.qt = QType.NS;
+        }
+    }
+
+    private Options mkOpt(){
         Options options = new Options();
 
         Option timeout = Option.builder("t")
-			.required(false)
-			.long-opt("timeout")
-			.hasArg()
-			.numberOfArgs(1)
-			//.type(Number.class)
-			.desc("Timeout in seconds")
-			.build();
-		options.addOption( timeout );
+                .required(false)
+                .longOpt("timeout")
+                .hasArg()
+                .numberOfArgs(1)
+                //.type(Number.class)
+                .desc("Timeout in seconds")
+                .build();
+        options.addOption( timeout );
 
         Option retries = Option.builder("r")
-			.required(false)
-			.long-opt("retries")
-			.hasarg()
-			.numberofargs(1)
-			//.type(Number.class)
-			.desc("number of tries before error")
-			.build();
-		options.addOption( retries );
+                .required(false)
+                .longOpt("retries")
+                .hasArg()
+                .numberOfArgs(1)
+                //.type(Number.class)
+                .desc("number of tries before error")
+                .build();
+        options.addOption( retries );
 
         Option port = Option.builder("p")
-			.required(false)
-			.long-opt("port")
-			.hasarg()
-			.numberofargs(1)
-			//.type(Number.class)
-			.desc("port number")
-			.build();
-		options.addOption( port );
+                .required(false)
+                .longOpt("port")
+                .hasArg()
+                .numberOfArgs(1)
+                //.type(Number.class)
+                .desc("port number")
+                .build();
+        options.addOption( port );
 
-		OptionGroup type = new OptionGroup();
-		
-		Option mx = Option.builder("mx")
-			.long-opt("mail")
-			.required(false)
-			.hasarg(false)
-			.desc("set a mail server query")
-			.build();
+        OptionGroup type = new OptionGroup();
 
-		Option ns = Option.builder("ns")
-			.long-opt("name")
-			.required(false)
-			.hasarg(false)
-			.desc("set a name server query")
-			.build();
+        Option mx = Option.builder("mx")
+                .longOpt("mail")
+                .required(false)
+                .hasArg(false)
+                .desc("set a mail server query")
+                .build();
 
-		Option a = Option.builder("a")
-			.long-opt("ip")
-			.required(false)
-			.hasarg(false)
-			.desc("send ip address query (default)")
-			.build();
+        Option ns = Option.builder("ns")
+                .longOpt("name")
+                .required(false)
+                .hasArg(false)
+                .desc("set a name server query")
+                .build();
 
-		type.addOption(ns);
-		type.addOption(mx);
-		type.addOption(a);
+        Option a = Option.builder("a")
+                .longOpt("ip")
+                .required(false)
+                .hasArg(false)
+                .desc("send ip address query (default)")
+                .build();
 
-		options.addOptionGroup(type);		//use hasOption bool for cases
+        type.addOption(ns);
+        type.addOption(mx);
+        type.addOption(a);
 
-		//because its not flags we'll just parse the rest of the input normally. CLI makes this too complicated
-		//could consider keeping some of this as a stub to generate help info
-		//Option serv = Option.builder("@")
-		//	.required(true)
-		//	.hasarg()
-		//	.numberOfArgs(4)
-		//	.valueSeparator('.')
-		//	type(Number[])
-		//options.addOption("@")
+        options.addOptionGroup(type);		//use hasOption bool for cases
 
-		//Option domain = Option.builder
+        //because its not flags we'll just parse the rest of the input normally. CLI makes this too complicated
+        //could consider keeping some of this as a stub to generate help info
+        //Option serv = Option.builder("@")
+        //	.required(true)
+        //	.hasarg()
+        //	.numberOfArgs(4)
+        //	.valueSeparator('.')
+        //	type(Number[])
+        //options.addOption("@")
 
-		return options;
-	}
+        //Option domain = Option.builder
 
-	private void parseIPDom(String args[]){
-		List<String> argL= Arrays.asList(args);
+        return options;
+    }
 
-		this.dom = argL[argL.length - 1];
-		String[] octets;
-		if(argL[argl.length -2].contains("@")){
-			this.address = argL[argl.length -2].substring(1);
-			octets = address.split("\\.");
+    private void parseIPDom(String args[]){
+        List<String> argL= Arrays.asList(args);
 
-			if(octets.length != 4) {
-				throw new IPFormatException("ERROR\tIncorrect input syntax: IP must contain 4 numbers between 0 and 255 inclusively, separated by a period (.)");
-			}
+        this.dom = argL[argL.length - 1];
+        String[] octets;
+        if(argL[argL.length -2].contains("@")){
+            this.address = argL[argL.length -2].substring(1);
+            octets = address.split("\\.");
 
-			for(int i = 0; i < 4; i++){
-				int oct = Integer.parseInt(octets[i]);
-				if (oct < 0 || oct > 255) { 
-					throw new IPFormatException("ERROR\tIncorrect input syntax: IP must contain 4 numbers between 0 and 255 inclusively, separated by a period (.)");
-				}
-				ip[i] = (byte) oct;
-			}
-		}
-		else throw new MissingArgException("ERROR\tThere must be an IP address preceded by an '@' as the second last argument and a domain name as the last one")
-	}
+            if(octets.length != 4) {
+                throw new IPFormatException("ERROR\tIncorrect input syntax: IP must contain 4 numbers between 0 and 255 inclusively, separated by a period (.)");
+            }
+
+            for(int i = 0; i < 4; i++){
+                int oct = Integer.parseInt(octets[i]);
+                if (oct < 0 || oct > 255) {
+                    throw new IPFormatException("ERROR\tIncorrect input syntax: IP must contain 4 numbers between 0 and 255 inclusively, separated by a period (.)");
+                }
+                ip[i] = (byte) oct;
+            }
+        }
+        else throw new MissingArgException("ERROR\tThere must be an IP address preceded by an '@' as the second last argument and a domain name as the last one")
+    }
 
     public void makeReq() {
         System.out.println("DnsClient sending request for " + dom);
         System.out.println("Server: " + address);
-        System.out.println("Request type: " + QType);
+        System.out.println("Request type: " + qt);
         pollReq(1);
     }
 
-    private void pollReq(int tryNum) {				
+    private void pollReq(int tryNum) {
         if (tryNum > retries) {
             System.out.println("ERROR\tMaximum number of retries " + retries+ " exceeded");
             return;
@@ -173,7 +173,7 @@ public class Client {
             DatagramSocket socket = new DatagramSocket();
             socket.setSoTimeout(timeout);
             InetAddress inetaddress = InetAddress.getByAddress(ip);
-            Request request = new Request(name, QType);
+            Request request = new Request(dom, qt);
 
             byte[] requestBytes = request.getReq();
             byte[] responseBytes = new byte[1024];
@@ -191,7 +191,7 @@ public class Client {
             System.out.println("Response received after " + (endTime - startTime)/1000. + " seconds " + "(" + (tryNum - 1) + " retries)");
 
             //TODO: refactor appropriately
-            DnsResponse response = new DnsResponse(responsePacket.getData(), requestBytes.length, queryType);
+            Response response = new Response(responsePacket.getData(), requestBytes.length, qt);
             response.outputResponse();
 
         } catch (SocketException e) {
@@ -201,7 +201,7 @@ public class Client {
         } catch (SocketTimeoutException e) {
             System.out.println("ERROR\tSocket Timeout");
             System.out.println("Reattempting request...");
-            pollRequest(++tryNum);
+            pollReq(++tryNum);
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
