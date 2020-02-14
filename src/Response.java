@@ -1,3 +1,5 @@
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 
 public class Response
@@ -129,14 +131,140 @@ public class Response
         String alias;
 
         Resource currentRecordInfo = retrieveAliasInfo(counter);
+        alias = currentRecordInfo.alias;
+        counter += currentRecordInfo.bs;
 
+        // we can start setting the fields
+        // name
+        record_result.setName(alias);
+        // type
+        byte answerType1 = response[counter];
+        byte answerType2 = response[counter+1];
+        byte[] answer_type = {answerType1, answerType2};
+        // determine which type this is
+        QType qt = QType.OTHER; // placeholder
+        if (answer_type[0] != 0)
+        {
+           qt = QType.OTHER;
+        }
+        else
+        {
+           if (answer_type[1] == 1)
+           {
+              qt = QType.A;
+           }
+           else if (answer_type[1] == 2)
+           {
+              qt = QType.NS;
+           }
+           else if (answer_type[1] == 15)
+           {
+              qt =  QType.MX;
+           }
+           else if (answer_type[1] == 5)
+           {
+              qt = QType.CNAME;
+           }
+           else
+           {
+              qt = QType.OTHER;
+           }
+        }
+        // set accordingly
+        record_result.setQType(qt);
+        counter += 2;
+        // move on
 
+        // class
+        byte answerClass1 = response[counter];
+        byte answerClass2 = response[counter+1];
+        byte[] answer_class = {answerClass1, answerClass2};
+        //TODO error check for 0 != 0 and 1 != 1
+        record_result.setQClass(answer_class);
+        // move on
+        counter += 2;
 
+        // time to live
+        byte ttl0 = response[counter];
+        byte ttl1 = response[counter+1];
+        byte ttl2 = response[counter+2];
+        byte ttl3 = response[counter+3];
+        byte [] answer_ttl = {ttl0, ttl1, ttl2, ttl3};
+        // need in int
+        ByteBuffer wrapping  = ByteBuffer.wrap(answer_ttl);
+        int answer_ttl_int = wrapping.get();
+        record_result.setTTL(answer_ttl_int);
+        //move on
+        counter += 4;
 
+        // rdlength
+        byte rd1 = response[counter];
+        byte rd2 = response[counter+1];
+        byte[] answer_rdlength = {rd1, rd2};
+        // again need in int
+        wrapping  = ByteBuffer.wrap(answer_rdlength);
+        int answer_rdlength_int = wrapping.get();
+        record_result.setRDLength(answer_rdlength_int);
+        // move on
+        counter += 2;
 
+        // finally, time to set the data in relation to what type it is with the alias
+        switch(record_result.getQType())
+        {
+            // the 4 cases and other if none or error
+            // depending on which we can finally update its appropriate alias for the data appropriately
+            case A:
+                // assemble the ip address
+                byte addr0 = response[counter];
+                byte addr1 = response[counter+1];
+                byte addr2 = response[counter+2];
+                byte addr3 = response[counter+3];
+                byte[] answer_address = {addr0, addr1, addr2, addr3};
+                String address_string = "";
+                // utilize the inet address to convert into a usable address with these bytes
+                try
+                {
+                    InetAddress inetaddress = InetAddress.getByAddress(answer_address); // need to surround in try catch for error handling
+                    address_string = inetaddress.toString().substring(1); // TODO MIGHT HAVE TO MOVE EVERYTHING IN HERE
+                }
+                catch (UnknownHostException e)
+                {
+                    e.printStackTrace();
+                }
+                record_result.setAlias(address_string);
+                break;
 
+            case CNAME:
+                String cname_string = "";
+                Resource cname_res = retrieveAliasInfo(counter);
+                cname_string = cname_res.alias;
+                record_result.setAlias(cname_string);
+                break;
 
-        return null;
+            case NS:
+                String ns_string = "";
+                Resource ns_res = retrieveAliasInfo(counter);
+                ns_string = ns_res.alias;
+                record_result.setAlias(ns_string);
+                break;
+
+            case MX:
+                String mx_string = "";
+                byte mx0 = this.response[counter];
+                byte mx1 = this.response[counter+1];
+                byte[] answer_mx = {mx0, mx1};
+                // also need an int
+                ByteBuffer wrapping2  = ByteBuffer.wrap(answer_mx);
+                record_result.setMXPreference(wrapping2.getShort());
+                mx_string = retrieveAliasInfo(counter+2).alias;
+                record_result.setAlias(mx_string);
+                break;
+
+        }
+
+        int finalLength = (answer_rdlength_int + counter - answer_index);
+        record_result.setLengthOfByte(finalLength);
+        return record_result;
     }
 
     private Resource retrieveAliasInfo(int offsetIndex)
@@ -144,7 +272,7 @@ public class Response
         Resource tempResource = new Resource();
         // populate the packet with the response data aliases
         String tempAlias = "";
-        byte[] current_offset = {(byte)(response[offsetIndex] & 0x3F), response[offsetIndex + 1]};
+        byte[] current_offset = {(byte)(response[offsetIndex] & 0x3F), response[offsetIndex + 1]}; //TODO unsure if this is right way of setting up
         // run through appropriate section
         boolean go = true;
         int counter = 0;
@@ -183,4 +311,33 @@ public class Response
         tempResource.bs = counter;
         return tempResource;
     }
+
+    public void response_output()
+    {
+        // check for no output
+        if(this.ANCOUNT <= 0)
+        {
+            System.out.println("NOTFOUND");
+            return;
+        }
+        // per assignment specifications
+        System.out.println("***Answer Section (" + this.ANCOUNT + " answerRecords)***");
+        // now output all the records from the received response
+        for(Record record : answers)
+        {
+            record.record_out(); // print in the predetermined format based on type
+        }
+        System.out.println(); // give some space
+        // now for the additionals
+        if (this.ARCOUNT > 0) // there actually exist some
+        {
+            System.out.println("***Additional Section (" + this.ARCOUNT + " answerRecords)***");
+            for(Record record : additionals)
+            {
+                record.record_out(); // print in the predetermined format based on type
+            }
+        }
+
+    }
 }
+
