@@ -1,8 +1,8 @@
 # ECSE 316 Assignment 1 Report 
-## Group 46
-### February 14th, 2020
-#### Luke Ma					260745824
-#### Spencer Handfield			260xxxxxx
+### Group 46
+February 14th, 2020
+ Luke Ma					260745824
+ Spencer Handfield			260xxxxxx
 
 ## Introduction
 ### Objectives
@@ -50,7 +50,7 @@ The goal of this assignment was to create a DNS client that could send out Datag
 
 2. Use your client to run DNS queries for 5 different website addresses, of your choice, in addition to www.google.com and www.facebook.com, for a total of seven addresses. Query the seven addresses using both a McGill DNS server (132.206.85.18) and the Google public DNS server (8.8.8.8).
 
-**_ Figure 1: _** _ Answers & Additional Info from the 7 Tested Websites _
+**_Figure 1:_** _Answers & Additional Info from the 7 Tested Websites_
 
  Website Address | McGill DNS Output | Google DNS Output 
 :---: | :---: | :---:
