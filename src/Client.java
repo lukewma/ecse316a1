@@ -17,12 +17,13 @@ public class Client {
     private String dom;
     private int port;
 
-    public void Main(String args[]) throws Exception{
+    public void main(String args[]) throws Exception{
 
         Options o = this.mkOpt();
         CommandLineParser pars = new DefaultParser();
         HelpFormatter frmt = new HelpFormatter();
         CommandLine cmd;
+        cmd = pars.parse(o, args, true);
 
         try {
             cmd = pars.parse(o, args, true);
@@ -132,8 +133,8 @@ public class Client {
         return options;
     }
 
-    private void parseIPDom(String args[]){
-        List<String> argL= Arrays.asList(args);
+    private void parseIPDom(List<String> argL) throws Exception{
+        //List<String> argL= args;
 
         String[] octets;
         if(argL.get(argL.size() - 2).contains("@")){
@@ -152,7 +153,7 @@ public class Client {
                 ip[i] = (byte) oct;
             }
         }
-        else throw new Exception("ERROR\tThere must be an IP address preceded by an '@' as the second last argument and a domain name as the last one")
+        else throw new Exception("ERROR\tThere must be an IP address preceded by an '@' as the second last argument and a domain name as the last one");
     }
 
     public void makeReq() {
@@ -192,7 +193,7 @@ public class Client {
 
             //TODO: refactor appropriately
             Response response = new Response(responsePacket.getData(), requestBytes.length, qt);
-            response.outputResponse();
+            response.response_output();
 
         } catch (SocketException e) {
             System.out.println("ERROR\tCould not create socket");
