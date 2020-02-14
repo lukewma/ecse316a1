@@ -55,7 +55,6 @@ public class Request {
 			q.put((byte) items[i].length());
 			for (int j = 0; j < items[i].length(); j++){
 				q.put((byte) ((int) items[i].charAt(j)));
-				
 			}
 		}
 
@@ -70,6 +69,7 @@ public class Request {
 		return q.array();
 	}
 	
+	//the right hex code per qtype
 	private char hexByQt(QType type){
 		if (type == QType.A) {
 			return '1';
@@ -80,6 +80,7 @@ public class Request {
 		}
 	}
 
+	//gives the corresp byte array for a hex string
 	private static byte[] hxStr2BytArr(String s) {
 		int len = s.length();
 	    byte[] data = new byte[len / 2];

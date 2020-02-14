@@ -6,16 +6,21 @@ February 14th, 2020
 
 ## Introduction
 ### Objectives
-The goal of this assignment was to create a DNS client that could send out Datagram packets according to the UDP protocol and read through the corresponding response packet. This client had to be able to 
+The goal of this assignment was to create a DNS client that could send out Datagram packets according to the UDP socket protocol and read through the corresponding response packet. This client had to be able to create its' own socket for each request, take in commandline flags such as timeout, max tries, port number and query type, as well as a target IPv4 address and a domain name. It would then parse the response for any errors and would print out a summary to the terminal display, interpreting them based on whether they contained A records (IP addresses) or CNAME records (DNS aliases). It also had to handle any errors that would come up and print them according to the format specified in the handout, with details about the exact cause of the error.
 
 ### Challenges
+This was an incredibly difficult assignment, as we faced errors in multiple places: taking in command line flags, formatting the query question header with the right offsets and interpreting the response flags correctly. More specifically, the manipulation of byte arrays rather than simple strings proved to be much more complex than we initially expected. The compression was also a very large hurdle that we had to overcome.
 
 
 ### Results
 
 
 ## DNS Client Design
+The overall design of our client rested on the idea that each class should only really be doing one thing, as per the tenets of object oriented programming. We assigned the main method and the command line handling to Client, the formatting of the query datagram to Request, the parsing of the response packet to Response and the formatting of the output for the terminal display to Record. 
+
+
 ### Client
+In our Client, we utilized a variety of methods to offload the work from our Main, such as a pollReq to setup a socket for each UDP packet and keep track of the attempts, a mkOpt and a cOpt to deal with the flags entered by the User, a parseIPDom for the remainder of the arguments. While we originally wanted to use an external library for our command line argument parsing, we have since regretted the decision, owing to the meagre implementation of the library and its' supplemental complexity. We chose the Apache commons cli
 
 
 ### Request
