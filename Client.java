@@ -8,9 +8,6 @@ import org.apache.commons.cli.*;
 
 public class Client {
 
-	//TODO: change all the int = to Integer.equals or just change the Integer to an int?
-
-	//TODO: do these defaults work with cli options?
 	public QType qt;
 	public int MAX_PACKET = 512;
 	private int timeout;						
@@ -22,7 +19,6 @@ public class Client {
 
 	public Main(String args[]) throws Exception{
 
-		//TODO:change cli parse into a single function, change data fields
 		Options o = this.mkOpt();
 		CommandLineParser pars = new DefaultParser();
 		HelpFormatter frmt = new HelpFormatter();
@@ -159,15 +155,15 @@ public class Client {
 		else throw new MissingArgException("ERROR\tThere must be an IP address preceded by an '@' as the second last argument and a domain name as the last one")
 	}
 
-    public void makeRequest() {
+    public void makeReq() {
         System.out.println("DnsClient sending request for " + dom);
         System.out.println("Server: " + address);
         System.out.println("Request type: " + QType);
-        pollRequest(1);
+        pollReq(1);
     }
 
-    private void pollRequest(int retryNumber) {				
-        if (retryNumber > retries) {
+    private void pollReq(int tryNum) {				
+        if (tryNum > retries) {
             System.out.println("ERROR\tMaximum number of retries " + retries+ " exceeded");
             return;
         }
@@ -177,9 +173,9 @@ public class Client {
             DatagramSocket socket = new DatagramSocket();
             socket.setSoTimeout(timeout);
             InetAddress inetaddress = InetAddress.getByAddress(ip);
-            DnsRequest request = new DnsRequest(name, QType);
+            Request request = new Request(name, QType);
 
-            byte[] requestBytes = request.getRequest();
+            byte[] requestBytes = request.getReq();
             byte[] responseBytes = new byte[1024];
 
             DatagramPacket requestPacket = new DatagramPacket(requestBytes, requestBytes.length, inetaddress, port);
@@ -192,7 +188,7 @@ public class Client {
             long endTime = System.currentTimeMillis();
             socket.close();
 
-            System.out.println("Response received after " + (endTime - startTime)/1000. + " seconds " + "(" + (retryNumber - 1) + " retries)");
+            System.out.println("Response received after " + (endTime - startTime)/1000. + " seconds " + "(" + (tryNum - 1) + " retries)");
 
             //TODO: refactor appropriately
             DnsResponse response = new DnsResponse(responsePacket.getData(), requestBytes.length, queryType);
@@ -205,7 +201,7 @@ public class Client {
         } catch (SocketTimeoutException e) {
             System.out.println("ERROR\tSocket Timeout");
             System.out.println("Reattempting request...");
-            pollRequest(++retryNumber);
+            pollRequest(++tryNum);
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
