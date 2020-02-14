@@ -11,14 +11,14 @@ public class Client {
 	//TODO: change all the int = to Integer.equals or just change the Integer to an int?
 
 	//TODO: do these defaults work with cli options?
-	public QType qt = QType.A;
+	public QType qt;
 	public int MAX_PACKET = 512;
-	private Integer timeout = new Integer(3000);				//default
+	private int timeout;						
 	private byte[] ip = new byte[4];
-	private Integer retries = new Integer(5);				//default
+	private int retries;
 	private String address;
 	private String dom;
-	private Integer port = new Integer(53);
+	private int port;
 
 	public Main(String args[]) throws Exception{
 
@@ -29,14 +29,15 @@ public class Client {
 		CommandLine cmd;
 
         try {
-            cmd = pars.parse(o, args);
+            cmd = pars.parse(o, args, true);
+            cmdOpt(cmd);
         } catch (ParseException e) {
             System.out.println(e.getMessage());
 			frmt.printHelp("utility-name", o);
         }
 
         try {
-			this.parseIPDom(args);
+			this.parseIPDom(cmd.getArgList());
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
 		}
@@ -44,9 +45,20 @@ public class Client {
 		this.makeReq();
 			
 	}
+	private void cmdOpt(CommandLine c){
+		this.timeout = Integer.parseInt(c.getOptionValue("t", "3"))*1000;
+		this.retries = Integer.parseInt(c.getOptionValue("r", "3"));
+		this.port = Integer.parseInt(c.getOptionValue("p", "53"));
+		this.qt = QType.A;
+		if (c.hasOption("mx")) {
+			this.qt = QType.MX;
+		}
+		else if (c.hasOption("ns")) {
+			this.qt = Qtype.NS;
+		}
+	}
 
-	public Options mkOpt(){
-
+	private Options mkOpt(){
         Options options = new Options();
 
         Option timeout = Option.builder("t")
@@ -54,7 +66,7 @@ public class Client {
 			.long-opt("timeout")
 			.hasArg()
 			.numberOfArgs(1)
-			.type(Number.class)
+			//.type(Number.class)
 			.desc("Timeout in seconds")
 			.build();
 		options.addOption( timeout );
@@ -64,7 +76,7 @@ public class Client {
 			.long-opt("retries")
 			.hasarg()
 			.numberofargs(1)
-			.type(Number.class)
+			//.type(Number.class)
 			.desc("number of tries before error")
 			.build();
 		options.addOption( retries );
@@ -74,7 +86,7 @@ public class Client {
 			.long-opt("port")
 			.hasarg()
 			.numberofargs(1)
-			.type(Number.class)
+			//.type(Number.class)
 			.desc("port number")
 			.build();
 		options.addOption( port );
@@ -85,14 +97,14 @@ public class Client {
 			.long-opt("mail")
 			.required(false)
 			.hasarg(false)
-			.desc("set a mail server")
+			.desc("set a mail server query")
 			.build();
 
 		Option ns = Option.builder("ns")
 			.long-opt("name")
 			.required(false)
 			.hasarg(false)
-			.desc("set a name server")
+			.desc("set a name server query")
 			.build();
 
 		Option a = Option.builder("a")
@@ -109,6 +121,7 @@ public class Client {
 		options.addOptionGroup(type);		//use hasOption bool for cases
 
 		//because its not flags we'll just parse the rest of the input normally. CLI makes this too complicated
+		//could consider keeping some of this as a stub to generate help info
 		//Option serv = Option.builder("@")
 		//	.required(true)
 		//	.hasarg()
